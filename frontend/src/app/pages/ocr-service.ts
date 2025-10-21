@@ -13,4 +13,12 @@ export class OcrService {
     console.log(formData)
     return this.http.post<any>('http://localhost:3000/ocr/upload', formData);
   }
+
+  uploadMultiple(files: File[]) {
+    const formData = new FormData();
+    files.forEach(file => formData.append('images', file)); // 'images' coincide con el backend
+
+    console.log('FormData a enviar:', formData);
+    return this.http.post<any>('http://localhost:3000/ocr/upload', formData);
+  }
 }

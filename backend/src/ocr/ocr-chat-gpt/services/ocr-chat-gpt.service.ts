@@ -1,44 +1,41 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import sharp from 'sharp';
-import Tesseract from 'tesseract.js';
 
 @Injectable()
 export class OcrChatGptService {
-  async processImage(fileBuffer: Buffer) {
+
+  /**
+   * search data from text by ChatGPT API
+   * returnt cups, rates (p1, p2 , p3) and contracted power in json format
+   * @param text 
+   * @returns json
+   */
+  async extractByChatGPT(text:string) {
     console.log('OpenAI API Key:', process.env.OPENAI_API_KEY);
 
-    // 1️⃣ Предобработка изображения
-    const preprocessed = await sharp(fileBuffer)
-      .rotate()
-      .resize({ width: 1500 })
-      .grayscale()
-      .normalize()
-      .toBuffer();
+    // prompt for ChatGPT
+    const prompt = `Eres un experto de extraer datos del texto. Necesito CUPS(Código Universal de Punto de Suministro),
+    valor de Potencia contratada y tarifas de potencia contratada de p1,p2, y p3 como valores del precio por 1 kilovatio-hora. 
+    
+    Es el texto:
+    ${text}
+    Los resultados deben ser en foemato json:
+    {
+      "CUPS": "ES0031405475679008HQ0F",
+      "PotenciaContratada": ""
+    },
+    "TarifasPorKWh": {
+      "P1_Punta": "",
+      "P2_Plana": "",
+      "P3_Vall": ""
+    }
+    
+    Si en valores numericos aparecen puntos - sustitulla los pum¡nros por una coma.
+    Los valores numericos sin lettras.
+    Si algún dato no aparece - asigna como null.
+    `;
 
-    // 2️⃣ OCR через Tesseract
-    const {
-      data: { text },
-    } = await Tesseract.recognize(preprocessed, 'eng+rus', {
-      logger: (m) => console.log(m),
-    });
-
-    // 3️⃣ Формируем prompt для ChatGPT
-    const prompt = `
-Ты эксперт по извлечению данных из документов.
-Вот текст документа:
-${text}
-
-Извлеки следующие поля и выведи строго в JSON:
-{
-  "días cotizados": "",
-  "Base reguladora diaria": "",
-  "peroido": ""
-}
-Если поля отсутствуют, ставь null.
-`;
-
-    // 4️⃣ Запрос к ChatGPT
+    // requiest to ChatGPT
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
@@ -60,18 +57,14 @@ ${text}
       },
     );
 
-    // 5️⃣ Парсим JSON от ChatGPT
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    // 5️⃣ Parsing JSON from ChatGPT
     const gptText = response.data.choices[0].message.content;
     let parsed = {};
     try {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-argument
       parsed = JSON.parse(gptText);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (e) {
-      console.error('Ошибка парсинга JSON от ChatGPT:', gptText);
+      console.error('ChatGPT JSON parsing error:', gptText);
     }
-
     return parsed;
   }
 }

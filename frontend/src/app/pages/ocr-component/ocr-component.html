@@ -1,2 +1,15 @@
-<input type="file" (change)="onFileSelected($event)">
-<pre>{{ ocrResult | json }}</pre>
+<div>
+  <h2>Subir imágenes para OCR</h2>
+  <input type="file" multiple (change)="onFilesSelected($event)" />
+  <!-- <pre>{{ ocrResult | json }}</pre> -->
+  @if(ocrResults.length){
+  <div>
+    <h3>Resultados OCR:</h3>
+    <div *ngFor="let text of ocrResults; let i = index">
+      <h4>Imagen {{ i + 1 }}</h4>
+      <pre>{{ text }}</pre>
+    </div>
+  </div>
+  }
+
+</div>
