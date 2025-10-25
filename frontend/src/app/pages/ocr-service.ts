@@ -13,4 +13,17 @@ export class OcrService {
     console.log(formData)
     return this.http.post<any>('http://localhost:3000/ocr/upload', formData);
   }
+
+  /**
+  * reader for multiple files
+  * @param files
+  * @returns
+  */
+  uploadMultiple(files: File[]) {
+    const formData = new FormData();
+    files.forEach(file => {
+      formData.append('files', file); // un solo key para todos
+    });
+    return this.http.post<any>('http://localhost:3000/ocr/upload', formData);
+  }
 }

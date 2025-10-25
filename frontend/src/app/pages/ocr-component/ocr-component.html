@@ -1,2 +1,44 @@
-<input type="file" (change)="onFileSelected($event)">
-<pre>{{ ocrResult | json }}</pre>
+<div class="m-3">
+  <!-- <input class="form-control" type="file" multiple (change)="onFilesSelected($event)" /> -->
+  <div class="image-upload-container">
+    <label for="lateral-input" class="form-label">Subir ficheros </label>
+    <small class="ps-2">(Puede subir uno o varios archivos en formato jpg, jpeg, png o pdf)</small>
+    <div class="row">
+      <div class="col-12 d-flex align-items-center align-middle px-0">
+        <!-- Botón personalizado -->
+        <label for="lateral-input"
+          class="w-100 btn btn-outline-primary border-0 border-2 border-top border-bottom border-start border-primary rounded-0 bg-primary rounded-start text-white cursor-pointer w-100 h-100 small-text d-flex align-items-center">
+          <span class="">select file</span>
+        </label>
+        <div
+          class="col-7 px-0 border border-2 border border-start-0 border-light ps-1 rounded-end d-flex align-items-center cursor-none h-100">
+        </div>
+      </div>
+    </div>
+    @if(filesSelected){
+    <div class="row g-3 my-2 file-name-container">
+      <!-- View name of file -->
+      @for(file of files; track file){
+      <small id="file-name" class="col-3 small-text text-truncate pe-2">{{ file.name }}
+      </small>
+      }
+    </div>
+    }
+    <div class="row">
+      <div class="col-6 px-0">
+        <button type="button" (click)="uploadAllFiles()" class="btn btn-primary mt-2"
+          [disabled]="!filesSelected || isLoading">
+          {{ isLoading ? 'Cargando...' : 'Subir Archivos' }}
+        </button>
+      </div>
+      @if(isLoading){
+      <div class="col-6 px-0 text-center">
+        <p>Subiendo archivos, por favor espera...</p>
+      </div>
+      }
+    </div>
+    <!-- real Input hidden -->
+    <input type="file" id="lateral-input" multiple class="d-none w-100" accept=".jpg,.jpeg,.png,application/pdf"
+      (change)="onFilesSelected($event)">
+  </div>
+</div>
