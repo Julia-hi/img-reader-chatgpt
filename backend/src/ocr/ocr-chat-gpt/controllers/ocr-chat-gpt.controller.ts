@@ -38,4 +38,5 @@ export class OcrChatGptController {
     const results = await this.ocrChatGptService.extractMultipleFiles(buffers);
     return { results };
   }
+
 }
